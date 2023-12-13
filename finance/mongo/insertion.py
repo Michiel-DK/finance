@@ -25,18 +25,19 @@ def get_all_tickers(database:str, table:str):
         client = PY_MONGO_CLIENT
 
         collection = client[database][table]
-        
-        import ipdb;ipdb.set_trace()
-                
-        collection.insert_one(ls)
+                        
+        collection.insert_many(ls)
         
         return None
     
     response = all_stocks()
     
-    for i in response:
-        print(i['symbol'])
-        insert_tabular(i)
+    insert_tabular(response)
+    
+    
+    # for i in response:
+    #     print(i['symbol'])
+    #     insert_tabular(i)
     
     
 
@@ -49,12 +50,11 @@ def api_key_metrics(tickers:list, database:str, table:str):
 
     def key_metrics(ticker:str, period:str):
         
-        url = 'https://financialmodelingprep.com/api/v3/key-metrics/'
+        url = f'https://financialmodelingprep.com/api/v3/key-metrics/{ticker}'
 
         params = {
             'apikey': API_KEY,
             'period':period,
-            'ticker':ticker
         }
         response = requests.get(url, params=params).json()
         return response
@@ -64,18 +64,20 @@ def api_key_metrics(tickers:list, database:str, table:str):
         client = PY_MONGO_CLIENT
 
         collection = client[database][table]
-        
-        import ipdb;ipdb.set_trace()
-        
+                        
         collection.insert_many(ls)
         
         return None
     
     for ticker in tickers:
         
-        response = key_metrics(ticker, period='quarter')
+        symbol = ticker['symbol']
         
-        insert_tabular(pd.DataFrame(response))
+        print(symbol)
+        
+        response = key_metrics(symbol, period='quarter')
+    
+        insert_tabular(response)
         
 
 if __name__ == '__main__':
