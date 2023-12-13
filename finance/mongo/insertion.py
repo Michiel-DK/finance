@@ -76,8 +76,11 @@ def api_key_metrics(tickers:list, database:str, table:str):
         print(symbol)
         
         response = key_metrics(symbol, period='quarter')
+        
+        if len(response) !=0:
     
-        insert_tabular(response)
+            insert_tabular(response)
+        
         
 
 if __name__ == '__main__':
