@@ -77,9 +77,12 @@ def api_key_metrics(tickers:list, database:str, table:str):
         
         response = key_metrics(symbol, period='quarter')
         
-        if len(response) !=0:
+        try:
     
             insert_tabular(response)
+        
+        except:
+            print(f'---- error for {ticker} ----')
         
         
 
