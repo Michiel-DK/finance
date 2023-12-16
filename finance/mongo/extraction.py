@@ -23,6 +23,7 @@ def get_all_tickers(exchange_ls:list) -> list:
         # Query to filter documents based on the "my_key" field
         query = {"$and": [
         {"exchangeShortName": {"$in": exchange_ls}},
+        
             {'type':'stock'}
         ]}
     
@@ -33,3 +34,4 @@ def get_all_tickers(exchange_ls:list) -> list:
     result = collection.find(query)
     
     return list(result)
+
