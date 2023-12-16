@@ -3,6 +3,9 @@ from tqdm import tqdm
 from finance.params import *
 from finance.mongo.extraction import *
 
+import random
+
+
 
 def api_all_tickers(database:str, table:str):
     
@@ -102,6 +105,61 @@ def api_key_ratios(tickers:list, database:str, table:str, period:str = 'quarter'
         response = requests.get(url, params=params).json()
         return response
     
+    def ratios_insert_tabular(ls: list):
+        
+        client = PY_MONGO_CLIENT
+
+        collection = client[database][table]
+                
+        [resource.update({"key": resource["calendarYear"]+resource["period"]+resource["symbol"]}) for resource in ls]
+        
+        collection.insert_many(ls)
+             
+        # filters = [{"key": resource["key"]} for resource in ls]
+                
+        # for resource, filter_criteria in zip(ls, filters):
+            
+        #     collection.update_one(filter_criteria, {"$set": resource}, upsert=True)
+            
+                
+                                
+    for ticker in tqdm(tickers):
+        
+        symbol = ticker['symbol']
+                
+        response = api_ratios(symbol, period=period)
+                
+        try:
+    
+            ratios_insert_tabular(response)
+        
+        except Exception as e:
+            print(f'---- {e} for {ticker} ----')
+    
+    return None
+
+def api_company_profile(tickers:list, database:str, table:str):
+    
+    """
+    Saves ticker list to tabular mongo_db
+    ---
+    tickers: list of symbols
+    database: db name
+    table: table name
+    period: quarter or year
+    
+    """
+
+    def api_profile(ticker:str):
+        
+        url = f'https://financialmodelingprep.com/api/v3/profile/{ticker}'
+
+        params = {
+            'apikey': API_KEY,
+        }
+        response = requests.get(url, params=params).json()
+        return response
+
     def insert_tabular(ls: list):
         
         client = PY_MONGO_CLIENT
@@ -110,11 +168,13 @@ def api_key_ratios(tickers:list, database:str, table:str, period:str = 'quarter'
                         
         collection.insert_many(ls)
         
+        return None
+    
     for ticker in tqdm(tickers):
         
         symbol = ticker['symbol']
                 
-        response = api_ratios(symbol, period=period)
+        response = api_profile(symbol)
         
         try:
     
@@ -132,4 +192,7 @@ if __name__ == '__main__':
     
     tickers = get_all_tickers(exchange_ls)
     
-    api_key_ratios(tickers, 'finance', 'key_ratios', period='quarter')
+    random.shuffle(tickers)
+    
+    #api_key_ratios(tickers, 'finance', 'key_ratio', period='quarter')
+    api_company_profile(tickers, 'finance', 'company_profile')
