@@ -7,7 +7,7 @@ import random
 
 
 
-def api_all_tickers(database:str, table:str):
+def api_all_tickers(database:str, table:str, EURONEXT: bool = False):
     
     """
     Function to insert tickers to mongodb
@@ -18,7 +18,10 @@ def api_all_tickers(database:str, table:str):
     
     def all_stocks():
         
-        url = 'https://financialmodelingprep.com/api/v3/stock/list'
+        if EURONEXT:
+            url = 'https://financialmodelingprep.com/api/v3/symbol/available-euronext'
+        else:
+            url = 'https://financialmodelingprep.com/api/v3/stock/list'
 
         params = {
             'apikey': API_KEY,
@@ -170,9 +173,13 @@ def api_company_profile(tickers:list, database:str, table:str):
         
         return None
     
-    for ticker in tqdm(tickers):
+    ticker_loop = tqdm(tickers)
+    
+    for ticker in ticker_loop:
         
         symbol = ticker['symbol']
+        
+        ticker_loop.set_postfix_str(f"current: {symbol}")
                 
         response = api_profile(symbol)
         

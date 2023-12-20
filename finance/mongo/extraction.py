@@ -30,9 +30,9 @@ def query_mongodb(exchange_ls:list, table:str, **kwargs) -> list:
         query = kwargs
 
     # Fetch documents that match the query
-    result = collection.find(query)
-    
-    return list(result)
+    result = list(collection.find(query))
+    print(f'exchange {kwargs} - {len(result)}')
+    return result
 
 
 if __name__ == '__main__':
