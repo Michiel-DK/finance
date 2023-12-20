@@ -188,11 +188,16 @@ def api_company_profile(tickers:list, database:str, table:str):
 if __name__ == '__main__':
       
     #get_all_tickers('finance', 'ticker_all')
-    exchange_ls = ['NASDAQ', 'NYSE', 'LSE', 'JPX', 'HKSE', 'NSE', 'ASX', 'TSX', 'EURONEXT','XETRA']
+    #exchange_ls = ['NASDAQ', 'NYSE', 'LSE', 'JPX', 'HKSE', 'NSE', 'ASX', 'TSX', 'EURONEXT','XETRA']
     
-    tickers = get_all_tickers(exchange_ls)
+    #all_tickers
+    echange_ls = EXCHANGE_LS
+    table_name = 'all_tickers'
+    kwargs = {'type':'stock'}
     
-    random.shuffle(tickers)
+    result = query_mongodb(echange_ls, table_name , **kwargs)
+    
+    random.shuffle(result)
     
     #api_key_ratios(tickers, 'finance', 'key_ratio', period='quarter')
-    api_company_profile(tickers, 'finance', 'company_profile')
+    api_company_profile(result, 'finance', 'company_profile')
