@@ -126,9 +126,13 @@ def api_key_ratios(tickers:list, database:str, table:str, period:str = 'quarter'
             
                 
                                 
-    for ticker in tqdm(tickers):
+    ticker_loop = tqdm(tickers)
+    
+    for ticker in ticker_loop:
         
         symbol = ticker['symbol']
+        
+        ticker_loop.set_postfix_str(f"current: {symbol}")
                 
         response = api_ratios(symbol, period=period)
                 
@@ -188,7 +192,7 @@ def api_company_profile(tickers:list, database:str, table:str):
             insert_tabular(response)
         
         except:
-            print(f'---- error for {ticker} ----')
+            print(f'---- error for {symbol} {len(ticker)}----')
     
     return None
 
@@ -198,13 +202,13 @@ if __name__ == '__main__':
     #exchange_ls = ['NASDAQ', 'NYSE', 'LSE', 'JPX', 'HKSE', 'NSE', 'ASX', 'TSX', 'EURONEXT','XETRA']
     
     #all_tickers
-    echange_ls = EXCHANGE_LS
+    echange_ls = ['PNK']
     table_name = 'all_tickers'
     kwargs = {'type':'stock'}
-    
+        
     result = query_mongodb(echange_ls, table_name , **kwargs)
     
     random.shuffle(result)
     
-    #api_key_ratios(tickers, 'finance', 'key_ratio', period='quarter')
-    api_company_profile(result, 'finance', 'company_profile')
+    api_key_ratios(result, 'finance', 'key_ratio', period='quarter')
+    #api_company_profile(result, 'finance', 'company_profile')
