@@ -7,7 +7,7 @@ import random
 
 
 
-def api_all_tickers(database:str, table:str):
+def api_all_tickers(database:str, table:str, EURONEXT: bool = False):
     
     """
     Function to insert tickers to mongodb
@@ -18,7 +18,10 @@ def api_all_tickers(database:str, table:str):
     
     def all_stocks():
         
-        url = 'https://financialmodelingprep.com/api/v3/stock/list'
+        if EURONEXT:
+            url = 'https://financialmodelingprep.com/api/v3/symbol/available-euronext'
+        else:
+            url = 'https://financialmodelingprep.com/api/v3/stock/list'
 
         params = {
             'apikey': API_KEY,
@@ -123,9 +126,13 @@ def api_key_ratios(tickers:list, database:str, table:str, period:str = 'quarter'
             
                 
                                 
-    for ticker in tqdm(tickers):
+    ticker_loop = tqdm(tickers)
+    
+    for ticker in ticker_loop:
         
         symbol = ticker['symbol']
+        
+        ticker_loop.set_postfix_str(f"current: {symbol}")
                 
         response = api_ratios(symbol, period=period)
                 
@@ -170,9 +177,13 @@ def api_company_profile(tickers:list, database:str, table:str):
         
         return None
     
-    for ticker in tqdm(tickers):
+    ticker_loop = tqdm(tickers)
+    
+    for ticker in ticker_loop:
         
         symbol = ticker['symbol']
+        
+        ticker_loop.set_postfix_str(f"current: {symbol}")
                 
         response = api_profile(symbol)
         
@@ -181,18 +192,23 @@ def api_company_profile(tickers:list, database:str, table:str):
             insert_tabular(response)
         
         except:
-            print(f'---- error for {ticker} ----')
+            print(f'---- error for {symbol} {len(ticker)}----')
     
     return None
 
 if __name__ == '__main__':
       
     #get_all_tickers('finance', 'ticker_all')
-    exchange_ls = ['NASDAQ', 'NYSE', 'LSE', 'JPX', 'HKSE', 'NSE', 'ASX', 'TSX', 'EURONEXT','XETRA']
+    #exchange_ls = ['NASDAQ', 'NYSE', 'LSE', 'JPX', 'HKSE', 'NSE', 'ASX', 'TSX', 'EURONEXT','XETRA']
     
-    tickers = get_all_tickers(exchange_ls)
+    #all_tickers
+    echange_ls = ['PNK']
+    table_name = 'all_tickers'
+    kwargs = {'type':'stock'}
+        
+    result = query_mongodb(echange_ls, table_name , **kwargs)
     
-    random.shuffle(tickers)
+    random.shuffle(result)
     
-    #api_key_ratios(tickers, 'finance', 'key_ratio', period='quarter')
-    api_company_profile(tickers, 'finance', 'company_profile')
+    api_key_ratios(result, 'finance', 'key_ratio', period='quarter')
+    #api_company_profile(result, 'finance', 'company_profile')
