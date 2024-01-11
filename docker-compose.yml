@@ -12,6 +12,8 @@ services:
       - 27018:27017
     volumes:
       - 'finance_mdb:/data/db'
+    networks:
+      - net
 
   mongo-express:
     image: mongo-express
@@ -25,6 +27,23 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://mongo_admin:mongo_admin@mongo:27017/
     depends_on:
       - mongo
+    networks:
+      - net
+
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    volumes:
+      - index_data:/chroma/.chroma/index
+    ports:
+      - 8083:8000
+    networks:
+      - net
 
 volumes:
   finance_mdb:
+  index_data:
+    driver: local
+
+networks:
+  net:
+    driver: bridge
