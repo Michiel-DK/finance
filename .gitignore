@@ -2,5 +2,5 @@
 .envrc
 **__pycache__*
 *egg*
-*.sql
+*.sqlite*
 *.orig
