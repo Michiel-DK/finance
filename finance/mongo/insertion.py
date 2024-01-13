@@ -196,6 +196,7 @@ def api_company_profile(tickers:list, database:str, table:str):
     
     return None
 
+
 if __name__ == '__main__':
       
     #get_all_tickers('finance', 'ticker_all')
