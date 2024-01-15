@@ -5,3 +5,4 @@
 *.sqlite*
 *.orig
 *llm_models/
+*DS_Store
