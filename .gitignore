@@ -1,6 +1,8 @@
 .env
 .envrc
-**__pycache__*
+*__pycache__*
 *egg*
 *.sqlite*
 *.orig
+*llm_models/
+*DS_Store
