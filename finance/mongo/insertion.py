@@ -196,6 +196,50 @@ def api_company_profile(tickers:list, database:str, table:str):
     
     return None
 
+def api_historical_prices(tickers:list, database:str, table:str):
+    
+    def api_historical(ticker:str):
+        
+        url = f'https://financialmodelingprep.com/api/v3/historical-price-full/{ticker}'
+
+        params = {
+            'apikey': API_KEY,
+        }
+        response = requests.get(url, params=params).json()
+        return response
+    
+    def insert_tabular(ls: list):
+        
+        client = PY_MONGO_CLIENT
+
+        collection = client[database][table]
+                        
+        collection.insert_many(ls)
+        
+        return None
+    
+    ticker_loop = tqdm(tickers)
+    
+    for ticker in ticker_loop:
+        
+        symbol = ticker['symbol']
+        
+        ticker_loop.set_postfix_str(f"current: {symbol}")
+                
+        response = api_historical(symbol)
+        
+        [resource.update({"symbol": symbol}) for resource in response['historical']]
+        
+        try:
+    
+            insert_tabular(response['historical'])
+        
+        except:
+            print(f'---- error for {symbol} {len(ticker)}----')
+    
+    return None
+    
+
 
 if __name__ == '__main__':
       
@@ -203,7 +247,7 @@ if __name__ == '__main__':
     #exchange_ls = ['NASDAQ', 'NYSE', 'LSE', 'JPX', 'HKSE', 'NSE', 'ASX', 'TSX', 'EURONEXT','XETRA']
     
     #all_tickers
-    echange_ls = ['PNK']
+    echange_ls = ['PNK', 'NASDAQ', 'NYSE']
     table_name = 'all_tickers'
     kwargs = {'type':'stock'}
         
@@ -211,5 +255,6 @@ if __name__ == '__main__':
     
     random.shuffle(result)
     
-    api_key_ratios(result, 'finance', 'key_ratio', period='quarter')
+    #api_key_ratios(result, 'finance', 'key_ratio', period='quarter')
     #api_company_profile(result, 'finance', 'company_profile')
+    api_historical_prices(result, 'finance', 'historical_prices')
