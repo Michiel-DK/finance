@@ -228,10 +228,8 @@ def api_historical_prices(tickers:list, database:str, table:str):
                 
         response = api_historical(symbol)
         
-        [resource.update({"symbol": symbol}) for resource in response['historical']]
-        
         try:
-    
+            [resource.update({"symbol": symbol}) for resource in response['historical']]
             insert_tabular(response['historical'])
         
         except:
