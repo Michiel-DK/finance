@@ -22,7 +22,6 @@ def query_mongodb(exchange_ls:list, table:str, **kwargs) -> list:
         # Query to filter documents based on the "my_key" field
         query = {"$and": [
         {"exchangeShortName": {"$in": exchange_ls}},
-        
             kwargs
         ]}
     
