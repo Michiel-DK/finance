@@ -15,7 +15,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.llms import GPT4All
 from langchain.prompts import PromptTemplate
 
-from langchain.text_splitter import CharacterTextSplitter, RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.document import Document
 
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
@@ -31,9 +31,12 @@ callbacks = [StreamingStdOutCallbackHandler()]
 LLM = GPT4All(model=local_path, callbacks=callbacks, verbose=True)
 
 
-
-
 def instantiate_client(collection_name: str = "transcripts_mililm_l6_v2"):
+    
+    """instantiates client and
+    --> connects to chroma db
+    --> instantiates sentence embedding
+    """
 
     chroma_client = chromadb.HttpClient(host='localhost', port = 8083, settings=Settings(allow_reset=True, anonymized_telemetry=False))
 
@@ -45,6 +48,8 @@ def instantiate_client(collection_name: str = "transcripts_mililm_l6_v2"):
 
 
 def query_client(query_text:str, **kwargs):
+    
+    """queries collection and returns best 10 results"""
     
     collection = instantiate_client()
     
@@ -153,7 +158,7 @@ def map_reduce(texts):
 
 if __name__=='__main__':
     collection = instantiate_client()
-    result = query_client('microsoft transcripts', **{'symbol': 'MSFT'})
+    result = query_client('SHOP transcripts', **{'symbol': 'SHOP'})
     texts = get_texts(result, 3)
     output = map_reduce(texts)
     print(output)
