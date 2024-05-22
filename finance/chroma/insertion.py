@@ -65,7 +65,7 @@ if __name__  == '__main__':
     
     table_name = 'all_tickers'
     
-    years = [2023]
+    years = [2024]
     
     kwargs = {'type':'stock'}
     

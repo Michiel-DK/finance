@@ -12,6 +12,8 @@ import pandas as pd
 from langchain import PromptTemplate
 from langchain.chains.summarize import load_summarize_chain
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.callbacks.streaming_stdout_final_only import (FinalStreamingStdOutCallbackHandler)
+
 from langchain.llms import GPT4All
 from langchain.prompts import PromptTemplate
 
@@ -26,6 +28,7 @@ local_path = (
 
 # Callbacks support token-wise streaming
 callbacks = [StreamingStdOutCallbackHandler()]
+#callbacks = [FinalStreamingStdOutCallbackHandler()] 
 
 # Verbose is required to pass to the callback manager
 LLM = GPT4All(model=local_path, callbacks=callbacks, verbose=True)
