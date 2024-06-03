@@ -2,8 +2,9 @@
 # Define a function to insert records only if the key does not exist
 def insert_if_not_exists(collection, records, filter):
     inserted_count = 0
+    records = records[:filter]
     
-    records = records[-2]
+    last_update = records[0]['key']
     
     for record in records:
         # Create key
@@ -17,5 +18,5 @@ def insert_if_not_exists(collection, records, filter):
             collection.insert_one(record)
             inserted_count += 1
             
-    print(f"{record[key]} - {inserted_count/len(records)}")
+    print(f"{last_update} - {inserted_count/len(records)}")
     #return inserted_count
