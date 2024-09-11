@@ -11,7 +11,7 @@ from chromadb.utils import embedding_functions
 import random
 
 
-def api_transcripts(tickers:list, year:int):
+def api_transcripts(tickers:list, year:int, local:bool = True):
     
     def api_transcript(ticker:str, year:int):
         
@@ -23,7 +23,7 @@ def api_transcripts(tickers:list, year:int):
         }
         
         response = requests.get(url, params=params).json()
-        return response
+        return response        
     
     def insert_chroma(data:dict, client: str = 'localhost', port: int = 8083):
         
@@ -51,12 +51,13 @@ def api_transcripts(tickers:list, year:int):
     for ticker in ticker_loop:
                 
         ticker_loop.set_postfix_str(f"current: {ticker}")
-                
+        
         response = api_transcript(ticker, year)
         
         if len(response) > 0:
         
             insert_chroma(response)
+                
         
         
 if __name__  == '__main__':
