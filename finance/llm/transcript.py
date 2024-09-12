@@ -6,6 +6,9 @@ from chromadb.utils import embedding_functions
 from chromadb.config import Settings
 from langchain.text_splitter import RecursiveCharacterTextSplitter, TokenTextSplitter
 
+from finance.llm.preprocessing import LexRankPreproc
+
+import re
 
 
 class TranscriptLoader():
@@ -33,7 +36,7 @@ class TranscriptLoader():
         self.collection = collection
 
 
-    def query_client(self, query_text:str, n_results:int, **kwargs):
+    def query_client(self, query_text:str, n_results:int, **kwargs) -> dict:
         
         """queries collection and returns best 10 results"""
         
@@ -45,11 +48,19 @@ class TranscriptLoader():
         
         return results
 
-    def get_texts(self, results:list, n:int):
-            
-        first_transcript = results['documents'][0][-n:]
-        first_transcript_meta = results['metadatas'][0][-3:]
+    def get_texts(self, results:list, n:int, preprocess:str) -> list:
                 
+        first_transcript = results['documents'][0][-n:]
+        
+        n_sentences = len(re.split(r'[.!?]+', first_transcript[0]))
+        n_sentences = round(int(n_sentences*1/3))
+        
+        if preprocess == 'lexrank':
+            lexrank = LexRankPreproc(n_sentences=n_sentences)
+            first_transcript = [' '.join(lexrank.preprocess(first_transcript))]
+        
+        first_transcript_meta = results['metadatas'][0][-3:]
+                        
         #text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=100)
         text_splitter = TokenTextSplitter(chunk_size=1024, chunk_overlap=100)
         
