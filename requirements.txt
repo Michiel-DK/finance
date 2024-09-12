@@ -39,8 +39,8 @@ exceptiongroup==1.2.0
 executing==2.0.1
 fastapi==0.105.0
 filelock==3.13.1
--e git+ssh://git@github.com/Michiel-DK/finance.git@22b54d987d04297dd8ba2292205936209146c49e#egg=finance
--e git+ssh://git@github.com/Michiel-DK/finance.git@22b54d987d04297dd8ba2292205936209146c49e#egg=finance_app
+# -e git+ssh://git@github.com/Michiel-DK/finance.git@22b54d987d04297dd8ba2292205936209146c49e#egg=finance
+# -e git+ssh://git@github.com/Michiel-DK/finance.git@22b54d987d04297dd8ba2292205936209146c49e#egg=finance_app
 fire==0.6.0
 flatbuffers==23.5.26
 fonttools==4.53.1
@@ -74,10 +74,7 @@ jupyter_core==5.5.0
 kiwisolver==1.4.7
 kubernetes==28.1.0
 langchain==0.0.342
-langchain-community==0.0.8
-langchain-core==0.0.13
-langchain-ollama==0.1.3
-langchain-openai==0.1.7
+langchain-core
 langchainhub==0.1.14
 langsmith==0.0.92
 lexrank==0.1.0
@@ -184,14 +181,12 @@ traitlets==5.14.0
 transformers==4.44.2
 tslearn==0.6.3
 typer==0.9.0
-types-requests==2.31.0.20240106
 typing-inspect==0.9.0
 typing_extensions==4.9.0
 tzdata==2023.3
 umap-learn==0.5.5
 uritools==4.0.3
 urlextract==1.9.0
-urllib3==1.26.18
 uvicorn==0.24.0.post1
 uvloop==0.19.0
 watchfiles==0.21.0

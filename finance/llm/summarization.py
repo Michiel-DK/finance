@@ -1,9 +1,8 @@
-from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain
+from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, StuffDocumentsChain
 from langchain.chains.llm import LLMChain
 
 import pandas as pd
 from langchain import PromptTemplate
-from langchain.chains.summarize import load_summarize_chain
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.callbacks.streaming_stdout_final_only import (FinalStreamingStdOutCallbackHandler)
 
@@ -48,7 +47,7 @@ class Summarizer():
         prompt = PromptTemplate.from_template(
             """The following is a part of a transcript for a company containing it's financial performance.
                 {context}
-                Summarize the text focussing on negative and positive points.
+                Summarize the text with focus on challenges and positives.
                 Helpful Answer:"""
         )
         llm_chain = LLMChain(llm=self.llm, prompt=prompt)
@@ -59,8 +58,9 @@ class Summarizer():
                 {context}
                 Firstly extract the year and quarter and list it at the top.
                 Secondly based on this set of docs, please summarize and list the following:
-                - main negatives
+                - main challenges
                 - main positives
+                Do not repeat the same information.
                 Helpful Answer:"""
         )
         reduce_llm_chain = LLMChain(llm=self.llm, prompt=reduce_prompt)
@@ -71,13 +71,14 @@ class Summarizer():
             document_variable_name=document_variable_name
         )
 
-
         # collapse_documents_chain which is specifically aimed at collapsing documents BEFORE
         # the final call.
         prompt = PromptTemplate.from_template(
             "Collapse this content {context}"
         )
+        
         llm_chain = LLMChain(llm=self.llm, prompt=prompt)
+        
         collapse_documents_chain = StuffDocumentsChain(
             llm_chain=llm_chain,
             document_prompt=document_prompt,
@@ -89,6 +90,7 @@ class Summarizer():
             collapse_documents_chain=collapse_documents_chain,
             token_max=1500
         )
+        
         map_reduce_chain = MapReduceDocumentsChain(
             llm_chain=llm_chain,
             reduce_documents_chain=reduce_documents_chain,
