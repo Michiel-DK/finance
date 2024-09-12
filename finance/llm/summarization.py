@@ -36,63 +36,63 @@ class Summarizer():
         
     def map_reduce(self, texts:list):
         
-        # Map
-        map_template = """You will receive a summarized text with challenges and successes for a company.
-        {page_content}
-        Firstly extract the year and quarter for which the transcript is for and list it at the top.
-        Secondly based on this set of docs, please summarize and list the following:
-        - main challenges
-        - main successes
-        Helpful Answer:"""
+        # This controls how each document will be formatted. Specifically,
+        document_prompt = PromptTemplate(
+            input_variables=["page_content"],
+            template="{page_content}"
+        )
+        document_variable_name = "context"
 
-        map_prompt = PromptTemplate(input_variables=['page_content'], template=map_template)
+        
+        prompt = PromptTemplate.from_template(
+            """The following is a part of a transcript for a company containing it's financial performance.
+                {context}
+                Summarize the text focussing on challenges and successes and elaborate on the most important details.
+                Helpful Answer:"""
+        )
+        llm_chain = LLMChain(llm=self.llm, prompt=prompt)
 
-        #map_prompt = PromptTemplate.from_template(map_template)
-        map_chain = LLMChain(llm=self.llm, prompt=map_prompt)
-        
-        # Reduce
-        reduce_template = """The following is a part of a transcript for a company containing it's financial performance.
-        {page_content}
-        Summarize the text focussing on challenges and successes.
-        Helpful Answer:"""
+        # We now define how to combine these summaries
+        reduce_prompt = PromptTemplate.from_template(
+            """You will receive a summarized text with challenges and successes for a company.
+                {context}
+                Firstly extract the year and quarter for which the transcript is for and list it at the top.
+                Secondly based on this set of docs, please summarize and list the following:
+                - main challenges
+                - main successes
+                Helpful Answer:"""
+        )
+        reduce_llm_chain = LLMChain(llm=self.llm, prompt=reduce_prompt)
 
-        reduce_prompt = PromptTemplate(input_variables=['page_content'], template=reduce_template)
-        
-        # Run chain
-        reduce_chain = LLMChain(llm=self.llm, prompt=reduce_prompt)
-        
-        # Takes a list of documents, combines them into a single string, and passes this to an LLMChain
         combine_documents_chain = StuffDocumentsChain(
-            llm_chain=reduce_chain, document_variable_name="page_content"
-            #metadata={'symbol':'symbol', 'quarter':'quarter', 'year':'year'}
+            llm_chain=reduce_llm_chain,
+            document_prompt=document_prompt,
+            document_variable_name=document_variable_name
         )
 
-        # Combines and iteratively reduces the mapped documents
+
+        # collapse_documents_chain which is specifically aimed at collapsing documents BEFORE
+        # the final call.
+        prompt = PromptTemplate.from_template(
+            "Collapse this content while keeping the most important information: {context}"
+        )
+        llm_chain = LLMChain(llm=self.llm, prompt=prompt)
+        collapse_documents_chain = StuffDocumentsChain(
+            llm_chain=llm_chain,
+            document_prompt=document_prompt,
+            document_variable_name=document_variable_name
+        )
+        
         reduce_documents_chain = ReduceDocumentsChain(
-            # This is final chain that is called.
             combine_documents_chain=combine_documents_chain,
-            # If documents exceed context for `StuffDocumentsChain`
-            collapse_documents_chain=combine_documents_chain,
-            # The maximum number of tokens to group documents into.
-            token_max=1024,
-            #metadata={'symbol':'symbol', 'quarter':'quarter', 'year':'year'}
+            collapse_documents_chain=collapse_documents_chain,
+            token_max=2000
         )
-        
-        # Combining documents by mapping a chain over them, then combining results
         map_reduce_chain = MapReduceDocumentsChain(
-            # Map chain
-            llm_chain=map_chain,
-            # Reduce chain
+            llm_chain=llm_chain,
             reduce_documents_chain=reduce_documents_chain,
-            # The variable name in the llm_chain to put the documents in
-            document_variable_name="page_content",
-            # Return the results of the map steps in the output
-            return_intermediate_steps=False,
-            #metadata={'symbol':'symbol', 'quarter':'quarter', 'year':'year'}
         )
-
-        import ipdb; ipdb.set_trace()
-        
+                
         return map_reduce_chain.invoke(texts)
 
 
@@ -105,14 +105,14 @@ if __name__=='__main__':
     
     where_dict = {'$and':[
               {'symbol': {
-                       "$in": ['TSLA']}
+                       "$in": ['ABNB']}
               }, 
               {'year': {
                         "$gt": 2023}
               }]
          }
     
-    result = dataloader.query_client('TESLA transcripts', n_results=1, **where_dict)
+    result = dataloader.query_client('ABNB transcripts', n_results=1, **where_dict)
     texts = dataloader.get_texts(result, 1)
     
     
@@ -123,8 +123,3 @@ if __name__=='__main__':
     sum.instantiate_llm()
     output = sum.map_reduce(texts)
     
-    # collection = instantiate_client()
-    # result = query_client('TESLA transcripts', **{'symbol': 'TSLA'})
-    # texts = get_texts(result, 3)
-    # output = map_reduce(texts)
-    #print(output)
