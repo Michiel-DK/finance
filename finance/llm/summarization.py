@@ -14,6 +14,7 @@ from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 
 from finance.llm.transcript import TranscriptLoader
 
+from utils import timer
 
 class Summarizer():
     
@@ -33,7 +34,7 @@ class Summarizer():
         
         self.llm = llm
 
-        
+    @timer
     def map_reduce(self, texts:list):
         
         # This controls how each document will be formatted. Specifically,
@@ -47,7 +48,7 @@ class Summarizer():
         prompt = PromptTemplate.from_template(
             """The following is a part of a transcript for a company containing it's financial performance.
                 {context}
-                Summarize the text focussing on challenges and successes and elaborate on the most important details.
+                Summarize the text focussing on negative and positive points.
                 Helpful Answer:"""
         )
         llm_chain = LLMChain(llm=self.llm, prompt=prompt)
@@ -56,10 +57,10 @@ class Summarizer():
         reduce_prompt = PromptTemplate.from_template(
             """You will receive a summarized text with challenges and successes for a company.
                 {context}
-                Firstly extract the year and quarter for which the transcript is for and list it at the top.
+                Firstly extract the year and quarter and list it at the top.
                 Secondly based on this set of docs, please summarize and list the following:
-                - main challenges
-                - main successes
+                - main negatives
+                - main positives
                 Helpful Answer:"""
         )
         reduce_llm_chain = LLMChain(llm=self.llm, prompt=reduce_prompt)
@@ -74,7 +75,7 @@ class Summarizer():
         # collapse_documents_chain which is specifically aimed at collapsing documents BEFORE
         # the final call.
         prompt = PromptTemplate.from_template(
-            "Collapse this content while keeping the most important information: {context}"
+            "Collapse this content {context}"
         )
         llm_chain = LLMChain(llm=self.llm, prompt=prompt)
         collapse_documents_chain = StuffDocumentsChain(
@@ -86,7 +87,7 @@ class Summarizer():
         reduce_documents_chain = ReduceDocumentsChain(
             combine_documents_chain=combine_documents_chain,
             collapse_documents_chain=collapse_documents_chain,
-            token_max=2000
+            token_max=1500
         )
         map_reduce_chain = MapReduceDocumentsChain(
             llm_chain=llm_chain,
@@ -99,27 +100,32 @@ class Summarizer():
 
 if __name__=='__main__':
     
-    
     dataloader = TranscriptLoader(collection_name = "transcripts_mililm_l6_v3", embedding_model = "all-MiniLM-L6-v2")
     dataloader.instantiate_client()
     
     where_dict = {'$and':[
               {'symbol': {
-                       "$in": ['ABNB']}
+                       "$in": ['TSLA']}
               }, 
               {'year': {
                         "$gt": 2023}
               }]
          }
     
-    result = dataloader.query_client('ABNB transcripts', n_results=1, **where_dict)
-    texts = dataloader.get_texts(result, 1)
-    
-    
+    result = dataloader.query_client('TSLA transcripts', n_results=1, **where_dict)
+    texts = dataloader.get_texts(result, 1, preprocess='lexrank')
+        
     local_path = ("llm_models/gpt4all-falcon-q4_0.gguf")
     
     sum = Summarizer(model_path=local_path)
     
     sum.instantiate_llm()
     output = sum.map_reduce(texts)
+    
+    print(output['output_text'])
+    
+    type = 'lexrank'
+    
+    with open(f"output_{type}.txt", "w") as text_file:
+        text_file.write(output['output_text'])
     
