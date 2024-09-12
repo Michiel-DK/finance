@@ -29,8 +29,8 @@ exceptiongroup==1.2.0
 executing==2.0.1
 fastapi==0.105.0
 filelock==3.13.1
--e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance
--e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance_app
+#-e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance
+#-e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance_app
 flatbuffers==23.5.26
 fsspec==2023.12.2
 google-auth==2.25.2
@@ -147,8 +147,8 @@ exceptiongroup==1.2.0
 executing==2.0.1
 fastapi==0.105.0
 filelock==3.13.1
--e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance
--e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance_app
+#-e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance
+#-e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance_app
 flatbuffers==23.5.26
 frozenlist==1.4.1
 fsspec==2023.12.2
@@ -277,8 +277,8 @@ exceptiongroup==1.2.0
 executing==2.0.1
 fastapi==0.105.0
 filelock==3.13.1
--e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance
--e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance_app
+#-e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance
+#-e git+ssh://git@github.com/Michiel-DK/finance.git@32fc69a0788ef0c7da7f97892e8ffc8d3b3c5be7#egg=finance_app
 flatbuffers==23.5.26
 frozenlist==1.4.1
 fsspec==2023.12.2

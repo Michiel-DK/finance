@@ -2,6 +2,7 @@ import requests
 from tqdm import tqdm
 from finance.params import *
 from finance.mongo.extraction import *
+from finance.mongo.utils import *
 
 import random
 
@@ -115,8 +116,11 @@ def api_key_ratios(tickers:list, database:str, table:str, period:str = 'quarter'
         collection = client[database][table]
                 
         [resource.update({"key": resource["calendarYear"]+resource["period"]+resource["symbol"]}) for resource in ls]
+        #import ipdb;ipdb.set_trace()
         
-        collection.insert_many(ls)
+        insert_if_not_exists(collection=collection, records=ls, filter=2)
+
+        #collection.insert_many(ls)
              
         # filters = [{"key": resource["key"]} for resource in ls]
                 
@@ -253,6 +257,6 @@ if __name__ == '__main__':
     
     random.shuffle(result)
     
-    #api_key_ratios(result, 'finance', 'key_ratio', period='quarter')
+    api_key_ratios(result, 'finance', 'key_ratio', period='quarter')
     #api_company_profile(result, 'finance', 'company_profile')
-    api_historical_prices(result, 'finance', 'historical_prices')
+    #api_historical_prices(result, 'finance', 'historical_prices')
