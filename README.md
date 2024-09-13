@@ -10,7 +10,7 @@ This project utilizes LangChain to generate summaries of stock transcripts using
 
 ## Current results - BERTScorer
 
-|           |   lexrank |      raw |
+|           |   lexrank |      gpt4all-falcon-q4_0 |
 |:----------|----------:|---------:|
 | Precision |  0.385635 | 0.421326 |
 | Recall    |  0.503401 | 0.511537 |
